@@ -30,19 +30,7 @@ public class SerieService {
         return convierteDatos(repository.lanzamientosRecientes());
     }
 
-    public List<SerieDTO> convierteDatos(List<Serie>serie){
-        return serie.stream()
-                .map(s -> new SerieDTO(
-                        s.getId(),
-                        s.getTitulo(),
-                        s.getTotalTemporadas(),
-                        s.getEvaluacion(),
-                        s.getPoster(),
-                        s.getGenero(),
-                        s.getActores(),
-                        s.getSinopsis()))
-                .collect(Collectors.toList());
-    }
+
 
 
     public SerieDTO obtenerPorID(Long id) {
@@ -89,5 +77,34 @@ public class SerieService {
     public List<SerieDTO> obtenerSerieCategoria(String genero) {
         Categoria categoria = Categoria.fromEspanol(genero);
         return convierteDatos(repository.findByGenero(categoria)) ;
+    }
+
+
+    public List<EpisodioDTO> obtenerTopEpisodios(Long id) {
+        Optional<Serie> serie = repository.findById(id);
+        if (serie.isPresent()) {
+            Serie s = serie.get();
+            return repository.top5Episodios(s).stream()
+                    .map(e -> new EpisodioDTO(
+                            e.getTemporada(),
+                            e.getTitulo(),
+                            e.getNumeroEpisodio()
+                    )).collect(Collectors.toList());
+        }
+        return null;
+    }
+
+    public List<SerieDTO> convierteDatos(List<Serie>serie){
+        return serie.stream()
+                .map(s -> new SerieDTO(
+                        s.getId(),
+                        s.getTitulo(),
+                        s.getTotalTemporadas(),
+                        s.getEvaluacion(),
+                        s.getPoster(),
+                        s.getGenero(),
+                        s.getActores(),
+                        s.getSinopsis()))
+                .collect(Collectors.toList());
     }
 }
